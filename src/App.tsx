@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Input, DatePicker, Row, Col } from "antd";
-import { RewardPayload } from "./types";
+import { Button, Col, DatePicker, Input, Select, Row } from "antd";
+import { RewardPayload, RewardType } from "./types";
 import { HOUR_MS } from "./constants";
 import dayjs, { Dayjs } from "dayjs";
 import "./App.css";
@@ -76,6 +76,90 @@ function App() {
             }}
             style={{ width: "100%" }}
           />
+        </Col>
+      </Row>
+      <Row gutter={[16, 16]}>
+        <Col span={8}>
+          <label>Rewards</label>
+        </Col>
+        <Col span={16}>
+          {payload.rewards.map((reward, index) => (
+            <Row key={index} gutter={[8, 8]}>
+              <Col span={12}>
+                <Select
+                  value={reward.type}
+                  options={Object.values(RewardType).map((type) => {
+                    return { value: type };
+                  })}
+                  onChange={(type) => {
+                    setPayload({
+                      ...payload,
+                      rewards: payload.rewards.map((reward, i) => {
+                        return i === index
+                          ? {
+                              ...reward,
+                              type,
+                            }
+                          : reward;
+                      }),
+                    });
+                  }}
+                  placeholder="Reward Type"
+                  style={{ width: "100%" }}
+                />
+              </Col>
+              <Col span={8}>
+                <Input
+                  type="number"
+                  value={reward.amount}
+                  onChange={(e) => {
+                    setPayload({
+                      ...payload,
+                      rewards: payload.rewards.map((reward, i) => {
+                        return i === index
+                          ? {
+                              ...reward,
+                              amount: parseInt(e.target.value),
+                            }
+                          : reward;
+                      }),
+                    });
+                  }}
+                  placeholder="Reward Value"
+                  style={{ width: "100%" }}
+                />
+              </Col>
+              <Col span={4}>
+                <Button
+                  type="default"
+                  onClick={() => {
+                    setPayload({
+                      ...payload,
+                      rewards: payload.rewards.filter((reward, i) => {
+                        return i !== index;
+                      }),
+                    });
+                  }}
+                >
+                  Remove
+                </Button>
+              </Col>
+            </Row>
+          ))}
+          <Button
+            type="primary"
+            onClick={() => {
+              setPayload({
+                ...payload,
+                rewards: [
+                  ...payload.rewards,
+                  { type: RewardType.Bomb, amount: 0 },
+                ],
+              });
+            }}
+          >
+            Add Reward
+          </Button>
         </Col>
       </Row>
     </div>

@@ -9,3 +9,7 @@ div {
   margin: 0;
   border: 0;
 }
+
+.ant-row {
+  margin-bottom: 8px !important;
+}
