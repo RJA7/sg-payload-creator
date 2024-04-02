@@ -14,10 +14,21 @@ import dayjs, { Dayjs } from "dayjs";
 import "./App.css";
 import TextArea from "antd/es/input/TextArea";
 import copy from "copy-to-clipboard";
-import { validate } from "./validate";
-import { payloadToJson } from "./payloadToJson";
-import { BoosterType, BotMessageRewardsPayload } from "./types";
-import { getRewardTypes } from "./getRewardTypes";
+import { validate } from "./helpers/validate";
+import { payloadToJson } from "./helpers/payloadToJson";
+import {
+  BoosterType,
+  BotMessageRewardsPayload,
+  ExpiryDateStartAtDuration,
+  ExpiryDateStartAtEndAt,
+  ExpiryDateType,
+} from "./types";
+import { getRewardTypes } from "./helpers/getRewardTypes";
+import {
+  getExpiryDateType,
+  isStartAtDuration,
+  isStartAtEndAt,
+} from "./helpers/expiryDate";
 
 function App() {
   const [payload, setPayload] = useState<BotMessageRewardsPayload>({
@@ -42,11 +53,7 @@ function App() {
   return (
     <ConfigProvider
       theme={{
-        // 1. Use dark algorithm
         algorithm: theme.darkAlgorithm,
-
-        // 2. Combine dark algorithm and compact algorithm
-        // algorithm: [theme.darkAlgorithm, theme.compactAlgorithm],
       }}
     >
       <div style={{ padding: 20 }}>
@@ -70,29 +77,6 @@ function App() {
         </Row>
         <Row gutter={[16, 16]}>
           <Col span={8}>
-            <label>Expiry Date</label>
-          </Col>
-          <Col span={16}>
-            {/*<DatePicker*/}
-            {/*  showTime*/}
-            {/*  value={payload.expireAt ? dayjs(payload.expireAt) : null}*/}
-            {/*  onChange={(value: Dayjs | null) => {*/}
-            {/*    if (value) {*/}
-            {/*      savePayload({*/}
-            {/*        ...payload,*/}
-            {/*        expireAt: value.toDate().getTime(),*/}
-            {/*      });*/}
-            {/*    } else {*/}
-            {/*      const { expireAt, ...newPayload } = payload;*/}
-            {/*      savePayload(newPayload);*/}
-            {/*    }*/}
-            {/*  }}*/}
-            {/*  style={{ width: "100%" }}*/}
-            {/*/>*/}
-          </Col>
-        </Row>
-        <Row gutter={[16, 16]}>
-          <Col span={8}>
             <label>Cooldown (hours)</label>
           </Col>
           <Col span={16}>
@@ -108,13 +92,128 @@ function App() {
                 } else {
                   savePayload({
                     ...payload,
-                    cooldown: parseFloat(e.target.value) * HOUR_MS,
+                    cooldown: value * HOUR_MS,
                   });
                 }
               }}
               style={{ width: "100%" }}
             />
           </Col>
+        </Row>
+        <Row gutter={[16, 16]}>
+          <Col span={8}>
+            <label>Expiry Date</label>
+          </Col>
+          <Col span={4}>
+            <Select
+              value={getExpiryDateType(payload.expireDate)}
+              onChange={(value) => {
+                if (value === ExpiryDateType.Unset) {
+                  const { expireDate, ...newPayload } = payload;
+                  savePayload(newPayload);
+                } else if (value === ExpiryDateType.StartAtEndAt) {
+                  savePayload({
+                    ...payload,
+                    expireDate: {
+                      startAt: payload.expireDate?.startAt ?? null!,
+                      endAt: null!,
+                    },
+                  });
+                } else if (value === ExpiryDateType.StartAtDuration) {
+                  savePayload({
+                    ...payload,
+                    expireDate: {
+                      startAt: payload.expireDate?.startAt ?? null!,
+                      timeUntilExpire: null!,
+                    },
+                  });
+                }
+              }}
+              style={{ width: "100%" }}
+            >
+              <Select.Option value={ExpiryDateType.Unset}>Unset</Select.Option>
+              <Select.Option value={ExpiryDateType.StartAtEndAt}>
+                StartAt - EndAt
+              </Select.Option>
+              <Select.Option value={ExpiryDateType.StartAtDuration}>
+                StartAt - Duration, hours
+              </Select.Option>
+            </Select>
+          </Col>
+          {payload.expireDate && (
+            <>
+              <Col span={6}>
+                {
+                  <DatePicker
+                    showTime
+                    value={
+                      payload.expireDate.startAt
+                        ? dayjs(payload.expireDate.startAt)
+                        : null
+                    }
+                    onChange={(value: Dayjs | null) => {
+                      savePayload({
+                        ...payload,
+                        expireDate: {
+                          ...(payload.expireDate as
+                            | ExpiryDateStartAtEndAt
+                            | ExpiryDateStartAtDuration),
+                          startAt: value?.toDate().getTime() ?? null!,
+                        },
+                      });
+                    }}
+                    style={{ width: "100%" }}
+                  />
+                }
+              </Col>
+              <Col span={6}>
+                {isStartAtEndAt(payload.expireDate) ? (
+                  <DatePicker
+                    showTime
+                    value={
+                      payload.expireDate.endAt
+                        ? dayjs(payload.expireDate.endAt)
+                        : null
+                    }
+                    onChange={(value: Dayjs | null) => {
+                      savePayload({
+                        ...payload,
+                        expireDate: {
+                          ...(payload.expireDate as ExpiryDateStartAtEndAt),
+                          endAt: value?.toDate().getTime() ?? null!,
+                        },
+                      });
+                    }}
+                    style={{ width: "100%" }}
+                  />
+                ) : isStartAtDuration(payload.expireDate) ? (
+                  <Input
+                    type="number"
+                    placeholder="Duration, hours"
+                    value={
+                      payload.expireDate.timeUntilExpire
+                        ? payload.expireDate.timeUntilExpire / HOUR_MS
+                        : ""
+                    }
+                    onChange={(e) => {
+                      const value = parseFloat(e.target.value);
+
+                      savePayload({
+                        ...payload,
+                        expireDate: {
+                          ...(payload.expireDate as ExpiryDateStartAtEndAt),
+                          timeUntilExpire: isNaN(value)
+                            ? null!
+                            : value * HOUR_MS,
+                        },
+                      });
+                    }}
+                    style={{ width: "100%" }}
+                  />
+                ) : null}
+              </Col>
+            </>
+          )}
         </Row>
         <Row gutter={[16, 16]}>
           <Col span={8}>

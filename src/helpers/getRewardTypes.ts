@@ -1,4 +1,4 @@
-import { BoosterType, GameCurrencyType, GameRewardType } from "./types";
+import { BoosterType, GameCurrencyType, GameRewardType } from "../types";
 
 export function getRewardTypes(): GameRewardType[] {
   const map: Record<GameRewardType, GameRewardType> = {

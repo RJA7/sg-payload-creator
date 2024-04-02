@@ -1,9 +1,11 @@
-import { RewardPayload, RewardType } from "./types";
+import { BotMessageRewardsPayload, GameRewardType } from "../types";
+import { getRewardTypes } from "./getRewardTypes";
+import { isStartAtDuration, isStartAtEndAt } from "./expiryDate";
 
-export function validate(payload: RewardPayload): string[] | null {
+export function validate(payload: BotMessageRewardsPayload): string[] | null {
   const result: string[] = [];
 
-  if (!payload.id) {
+  if (!payload.payloadId) {
     result.push("ID must be specified");
   }
 
@@ -19,8 +21,21 @@ export function validate(payload: RewardPayload): string[] | null {
     result.push("Reward amount must be positive");
   }
 
-  const rewards = new Set<RewardType>();
-  const possibleRewardTypes = Object.values(RewardType);
+  if (payload.expireDate && !payload.expireDate.startAt) {
+    result.push("Expiry date 'startAt' must be specified");
+  }
+
+  if (isStartAtEndAt(payload.expireDate) && !payload.expireDate.endAt) {
+    result.push("Expiry date 'endAt' must be specified");
+  } else if (
+    isStartAtDuration(payload.expireDate) &&
+    !payload.expireDate.timeUntilExpire
+  ) {
+    result.push("Expiry date 'duration' must be specified");
+  }
+
+  const rewards = new Set<GameRewardType>();
+  const possibleRewardTypes = getRewardTypes();
 
   payload.rewards.forEach((reward) => {
     if (rewards.has(reward.type)) {
@@ -33,10 +48,6 @@ export function validate(payload: RewardPayload): string[] | null {
 
     if (reward.amount === 0) {
       result.push(`${reward.type} reward amount must be positive`);
-    }
-
-    if (reward.type === RewardType.Frame && !reward.name) {
-      result.push(`${reward.type} name must be specified`);
     }
 
     rewards.add(reward.type);

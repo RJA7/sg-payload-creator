@@ -1,15 +1,7 @@
 export type BotMessageRewardsPayload = {
   payloadId: string;
   rewards: GameReward[];
-  expireDate?:
-    | {
-        startAt: number;
-        timeUntilExpire: number;
-      }
-    | {
-        startAt: number;
-        endAt: number;
-      };
+  expireDate?: ExpiryDateStartAtDuration | ExpiryDateStartAtEndAt;
   cooldown?: number;
 };
 
@@ -33,3 +25,19 @@ export enum BoosterType {
 export enum GameCurrencyType {
   Ticket = "Ticket",
 }
+
+export enum ExpiryDateType {
+  Unset = "Unset",
+  StartAtEndAt = "StartAtEndAt",
+  StartAtDuration = "StartAtDuration",
+}
+
+export type ExpiryDateStartAtEndAt = {
+  startAt: number;
+  endAt: number;
+};
+
+export type ExpiryDateStartAtDuration = {
+  startAt: number;
+  timeUntilExpire: number;
+};
