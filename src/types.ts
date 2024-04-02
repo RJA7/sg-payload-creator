@@ -1,4 +1,4 @@
-export type RewardPayload = {
+export type EntryPointData = {
   entryPoint: "botMessage";
   gamePayload: BotMessageRewardsPayload;
 };

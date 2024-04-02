@@ -15,7 +15,7 @@ import "./App.css";
 import TextArea from "antd/es/input/TextArea";
 import copy from "copy-to-clipboard";
 import { validate } from "./helpers/validate";
-import { payloadToJson } from "./helpers/payloadToJson";
+import { payloadFromJson, payloadToJson } from "./helpers/payloadToJson";
 import {
   BoosterType,
   BotMessageRewardsPayload,
@@ -45,7 +45,7 @@ function App() {
   let errors: string[] | null;
 
   try {
-    errors = validate(JSON.parse(payloadEdit));
+    errors = validate(payloadFromJson(payloadEdit));
   } catch (e) {
     errors = ["Invalid JSON"];
   }
@@ -312,7 +312,7 @@ function App() {
                 setPayloadEdit(e.target.value);
 
                 try {
-                  const payload = JSON.parse(e.target.value);
+                  const payload = payloadFromJson(e.target.value);
 
                   if (!validate(payload)) {
                     setPayload(payload);
