@@ -1,3 +1,8 @@
+export type RewardPayload = {
+  entryPoint: "botMessage";
+  gamePayload: BotMessageRewardsPayload;
+};
+
 export type BotMessageRewardsPayload = {
   payloadId: string;
   rewards: GameReward[];

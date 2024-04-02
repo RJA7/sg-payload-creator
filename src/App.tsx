@@ -58,11 +58,11 @@ function App() {
     >
       <div style={{ padding: 20 }}>
         <h2>Payload Creator</h2>
-        <Row gutter={[16, 16]}>
-          <Col span={8}>
+        <Row gutter={[8, 8]}>
+          <Col span={6}>
             <label>ID</label>
           </Col>
-          <Col span={16}>
+          <Col span={18}>
             <Input
               value={payload.payloadId}
               onChange={(e) => {
@@ -75,11 +75,11 @@ function App() {
             />
           </Col>
         </Row>
-        <Row gutter={[16, 16]}>
-          <Col span={8}>
+        <Row gutter={[8, 8]}>
+          <Col span={6}>
             <label>Cooldown (hours)</label>
           </Col>
-          <Col span={16}>
+          <Col span={18}>
             <Input
               type="number"
               value={payload.cooldown ? payload.cooldown / HOUR_MS : ""}
@@ -100,11 +100,11 @@ function App() {
             />
           </Col>
         </Row>
-        <Row gutter={[16, 16]}>
-          <Col span={8}>
+        <Row gutter={[8, 8]}>
+          <Col span={6}>
             <label>Expiry Date</label>
           </Col>
-          <Col span={4}>
+          <Col span={6}>
             <Select
               value={getExpiryDateType(payload.expireDate)}
               onChange={(value) => {
@@ -215,15 +215,15 @@ function App() {
             </>
           )}
         </Row>
-        <Row gutter={[16, 16]}>
-          <Col span={8}>
+        <Row gutter={[8, 8]}>
+          <Col span={6}>
             <label>Rewards</label>
           </Col>
-          <Col span={16}>
+          <Col span={18}>
             {payload.rewards.map((reward, index) => {
               return (
                 <Row key={index} gutter={[8, 8]}>
-                  <Col span={11}>
+                  <Col span={8}>
                     <Select
                       value={reward.type}
                       options={getRewardTypes().map((type) => {
@@ -246,7 +246,7 @@ function App() {
                       style={{ width: "100%" }}
                     />
                   </Col>
-                  <Col span={11}>
+                  <Col span={8}>
                     <Input
                       type="number"
                       value={reward.amount}
@@ -267,7 +267,7 @@ function App() {
                       style={{ width: "100%" }}
                     />
                   </Col>
-                  <Col span={2}>
+                  <Col span={8}>
                     <Button
                       type="text"
                       style={{ color: "red" }}
@@ -302,7 +302,7 @@ function App() {
             </Button>
           </Col>
         </Row>
-        <Row gutter={[16, 16]} style={{ marginTop: 20 }}>
+        <Row gutter={[8, 8]} style={{ marginTop: 20 }}>
           <Col span={24}>
             Generated Payload:
             <TextArea
