@@ -1,17 +1,5 @@
-import { RewardPayload, RewardType } from "./types";
+import { BotMessageRewardsPayload } from "./types";
 
-export function payloadToJson(payload: RewardPayload) {
-  const copy: RewardPayload = {
-    ...payload,
-    rewards: payload.rewards.map((reward) => {
-      const { name, ...partialReward } = reward;
-
-      return {
-        ...partialReward,
-        ...(reward.type === RewardType.Frame ? { name } : ({} as { name: "" })),
-      };
-    }),
-  };
-
-  return JSON.stringify(copy, null, 2);
+export function payloadToJson(payload: BotMessageRewardsPayload) {
+  return JSON.stringify(payload, null, 2);
 }

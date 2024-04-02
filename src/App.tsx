@@ -9,7 +9,6 @@ import {
   Select,
   theme,
 } from "antd";
-import { RewardPayload, RewardType } from "./types";
 import { HOUR_MS } from "./constants";
 import dayjs, { Dayjs } from "dayjs";
 import "./App.css";
@@ -17,15 +16,17 @@ import TextArea from "antd/es/input/TextArea";
 import copy from "copy-to-clipboard";
 import { validate } from "./validate";
 import { payloadToJson } from "./payloadToJson";
+import { BoosterType, BotMessageRewardsPayload } from "./types";
+import { getRewardTypes } from "./getRewardTypes";
 
 function App() {
-  const [payload, setPayload] = useState<RewardPayload>({
-    id: "",
+  const [payload, setPayload] = useState<BotMessageRewardsPayload>({
+    payloadId: "",
     rewards: [],
   });
   const [payloadEdit, setPayloadEdit] = useState(payloadToJson(payload));
 
-  const savePayload = (payload: RewardPayload) => {
+  const savePayload = (payload: BotMessageRewardsPayload) => {
     setPayload(payload);
     setPayloadEdit(payloadToJson(payload));
   };
@@ -56,11 +57,11 @@ function App() {
           </Col>
           <Col span={16}>
             <Input
-              value={payload.id}
+              value={payload.payloadId}
               onChange={(e) => {
                 savePayload({
                   ...payload,
-                  id: e.target.value,
+                  payloadId: e.target.value,
                 });
               }}
               style={{ width: "100%" }}
@@ -72,22 +73,22 @@ function App() {
             <label>Expiry Date</label>
           </Col>
           <Col span={16}>
-            <DatePicker
-              showTime
-              value={payload.expireAt ? dayjs(payload.expireAt) : null}
-              onChange={(value: Dayjs | null) => {
-                if (value) {
-                  savePayload({
-                    ...payload,
-                    expireAt: value.toDate().getTime(),
-                  });
-                } else {
-                  const { expireAt, ...newPayload } = payload;
-                  savePayload(newPayload);
-                }
-              }}
-              style={{ width: "100%" }}
-            />
+            {/*<DatePicker*/}
+            {/*  showTime*/}
+            {/*  value={payload.expireAt ? dayjs(payload.expireAt) : null}*/}
+            {/*  onChange={(value: Dayjs | null) => {*/}
+            {/*    if (value) {*/}
+            {/*      savePayload({*/}
+            {/*        ...payload,*/}
+            {/*        expireAt: value.toDate().getTime(),*/}
+            {/*      });*/}
+            {/*    } else {*/}
+            {/*      const { expireAt, ...newPayload } = payload;*/}
+            {/*      savePayload(newPayload);*/}
+            {/*    }*/}
+            {/*  }}*/}
+            {/*  style={{ width: "100%" }}*/}
+            {/*/>*/}
           </Col>
         </Row>
         <Row gutter={[16, 16]}>
@@ -123,10 +124,10 @@ function App() {
             {payload.rewards.map((reward, index) => {
               return (
                 <Row key={index} gutter={[8, 8]}>
-                  <Col span={7}>
+                  <Col span={11}>
                     <Select
                       value={reward.type}
-                      options={Object.values(RewardType).map((type) => {
+                      options={getRewardTypes().map((type) => {
                         return { value: type };
                       })}
                       onChange={(type) => {
@@ -146,7 +147,7 @@ function App() {
                       style={{ width: "100%" }}
                     />
                   </Col>
-                  <Col span={7}>
+                  <Col span={11}>
                     <Input
                       type="number"
                       value={reward.amount}
@@ -167,30 +168,7 @@ function App() {
                       style={{ width: "100%" }}
                     />
                   </Col>
-                  <Col span={7}>
-                    {reward.type === RewardType.Frame && (
-                      <Input
-                        value={reward.name}
-                        onChange={(e) => {
-                          savePayload({
-                            ...payload,
-                            rewards: payload.rewards.map((reward, i) => {
-                              return i === index
-                                ? {
-                                    ...reward,
-                                    name: e.target.value,
-                                  }
-                                : reward;
-                            }),
-                          });
-                        }}
-                        placeholder="Frame name"
-                        style={{ width: "100%" }}
-                      />
-                    )}
-                  </Col>
-                  <Col span={1} />
-                  <Col span={1}>
+                  <Col span={2}>
                     <Button
                       type="text"
                       style={{ color: "red" }}
@@ -216,7 +194,7 @@ function App() {
                   ...payload,
                   rewards: [
                     ...payload.rewards,
-                    { type: RewardType.Bomb, amount: 1, name: "" },
+                    { type: BoosterType.Bomb, amount: 1 },
                   ],
                 });
               }}
